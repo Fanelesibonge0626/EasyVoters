@@ -1,0 +1,43 @@
+<!-- Registration Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            background: url("https://th.bing.com/th/id/OIP.P23iDmskc9CuL10YMNuLTwHaDd?rs=1&pid=ImgDetMain");
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .form-container { max-width: 400px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; }
+        .btn { padding: 10px 20px; background: #28a745; color: #fff; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register</h2>
+        <form action="register" method="POST">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role">
+                <option value="student">Student</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit" class="btn">Register</button>
+            
+        </form>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login</a>
+        </p>
+    </div>
+</body>
+</html>

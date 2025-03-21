@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Candidates</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .container { max-width: 500px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 8px; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; }
+        .btn { background: #007bff; color: white; border: none; cursor: pointer; }
+        .success-message { display: none; color: green; font-weight: bold; }
+    </style>
+    <script>
+        function showSuccessMessage() {
+            document.getElementById("success-message").style.display = "block";
+            setTimeout(() => { document.getElementById("success-message").style.display = "none"; }, 3000);
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Add Candidate</h2>
+        <form action="{{ url_for('add_candidate') }}" method="POST" onsubmit="showSuccessMessage()">
+            <input type="text" name="name" placeholder="Candidate Name" required>
+            <select name="election_type" required>
+                <option value="">Select Election Type</option>
+                <option value="Presidential">Presidential</option>
+                <option value="Finance">Finance</option>
+                <option value="Accommodation">Accommodation</option>
+            </select>
+            <select name="party" required>
+                <option value="">Select Party</option>
+                <option value="EFFSC">EFFSC</option>
+                <option value="IFP">IFP</option>
+                <option value="SASCO">SASCO</option>
+            </select>
+            <button type="submit" class="btn">Add Candidate</button>
+        </form>
+
+        <p id="success-message" class="success-message">You have successfully added a new candidate!</p>
+
+        <br>
+        <a href="{{ url_for('candidate_list') }}">View All Candidates</a>
+        <br><br>
+        <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

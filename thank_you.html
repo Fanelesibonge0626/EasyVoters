@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Voting</title>
+    <style>
+        body {
+            background: url("https://th.bing.com/th/id/OIP.P23iDmskc9CuL10YMNuLTwHaDd?rs=1&pid=ImgDetMain");
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .vote-details {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .vote-details p {
+            font-size: 18px;
+            margin: 5px 0;
+            color: #000;
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Thank You for Voting!</h2>
+        <p>Your vote has been successfully recorded.</p>
+
+        <div class="vote-details">
+            {% for election, candidate in selected_candidates.items() %}
+                <p><strong>{{ election }}</strong>: {{ candidate.name }} ({{ candidate.party }})</p>
+            {% endfor %}
+        </div>
+
+        <a href="/" class="home-button">Return to Home</a>
+    </div>
+</body>
+</html>

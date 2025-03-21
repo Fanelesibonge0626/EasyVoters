@@ -1,0 +1,25 @@
+<!-- Landing Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Voting System</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .container { margin-top: 100px; }
+        h1 { color: #333; }
+        .btn { padding: 10px 20px; text-decoration: none; background: #007bff; color: #fff; border-radius: 5px; }
+        .btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Student Voting System</h1>
+        <p>Vote for your leaders with ease and fairness.</p>
+        
+        <a href="{{ url_for('login') }}"class="btn">login</a>
+        <a href="{{ url_for('register') }}"class="btn">register</a>
+    </div>
+</body>
+</html>
