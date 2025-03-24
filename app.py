@@ -29,7 +29,7 @@ class Candidate(db.Model):
     name = db.Column(db.String(100), nullable=False)
     election_type = db.Column(db.String(50), nullable=False)
     party = db.Column(db.String(50), nullable=False)
-    votes = db.Column(db.Integer, default=0)  # New field for vote count
+    votes = db.Column(db.Integer, default=0) 
 
 
 @app.route('/')
@@ -62,9 +62,9 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id  # Store user ID in session
+            session['user_id'] = user.id  
             session['role'] = user.role
-            session['email'] = user.email  # Store email in session for profile display
+            session['email'] = user.email 
 
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
@@ -115,7 +115,7 @@ def add_candidate():
         db.session.add(new_candidate)
         db.session.commit()
 
-        return redirect(url_for('add_candidate'))  # Refresh to show success message
+        return redirect(url_for('add_candidate'))  
 
     return render_template('add_candidates.html')
 
@@ -131,7 +131,7 @@ def candidate_list():
 def page1():
     candidates = Candidate.query.all()
 
-    # Group candidates by election type
+    
     candidates_by_type = {}
     for c in candidates:
         if c.election_type not in candidates_by_type:
@@ -153,7 +153,7 @@ def submit_vote():
                 'party': candidate.party
             }
 
-    # Store the selected candidates in session
+   
     session['selected_candidates'] = selected_candidates
 
     return redirect(url_for('thank_you'))
@@ -162,21 +162,21 @@ def submit_vote():
 @app.route('/page2', methods=['GET', 'POST'])
 def page2():
     if request.method == 'POST':
-        selected_party = request.form.get('party')  # Get selected party
+        selected_party = request.form.get('party') 
         if not selected_party:
             return render_template('page2.html', error="Please select a party.")
         
-        # Redirect to Page 3 with the selected party (you can pass it as a query param)
+       
         return redirect(url_for('page3', party=selected_party))
     
     return render_template('page2.html')
 
 @app.route('/page3', methods=['GET', 'POST'])
 def page3():
-    party = session.get('party', 'None')  # Retrieve the selected party
+    party = session.get('party', 'None') 
 
     if request.method == 'POST':
-        return redirect(url_for('thank_you'))  # Redirect after vote submission
+        return redirect(url_for('thank_you'))
 
     return render_template('page3.html', vote_data={'party': party, 'issues': 'None'})
 
@@ -185,7 +185,7 @@ def results():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
 
-    candidates = Candidate.query.order_by(Candidate.votes.desc()).all()  # Order by highest votes
+    candidates = Candidate.query.order_by(Candidate.votes.desc()).all() 
     return render_template('results.html', candidates=candidates)
 
 
@@ -215,9 +215,9 @@ def vote():
         if selected_candidate_id:
             candidate = Candidate.query.get(selected_candidate_id)
             if candidate:
-                candidate.votes += 1  # Increment vote count
+                candidate.votes += 1 
                 db.session.commit()
-                return redirect(url_for('thank_you'))  # Redirect after voting
+                return redirect(url_for('thank_you'))  
 
         return "Please select a candidate."
 
