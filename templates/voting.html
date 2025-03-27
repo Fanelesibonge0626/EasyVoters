@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Page</title>
+    <style>
+      
+        body {
+            font-family: Arial, sans-serif;
+            background: url("https://th.bing.com/th/id/OIP.P23iDmskc9CuL10YMNuLTwHaDd?rs=1&pid=ImgDetMain");
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        
+        .voting-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+            background-color:  #FFFFFF; 
+        }
+
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+     
+        .category {
+            text-align: left;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-bottom: 5px;
+        }
+
+      
+        .candidate-container {
+            text-align: left;
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 5px;
+            
+        } 
+
+       
+        input[type="radio"] {
+            margin-right: 8px;
+        }
+
+       
+        .submit-btn {
+            background: blue;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: darkblue;
+        }
+    </style>
+</head>
+<body>
+
+<div class="voting-container">
+    <div class="title">Select Your Candidate</div>
+        <form action="{{ url_for('voting') }}" method="POST">
+ 
+        <div class="category">Presidential</div>
+        {% for candidate in candidates if candidate.election_type == 'Presidential' %}
+            <div class="candidate-container">
+                <input type="radio" name="presidential_vote" value="{{ candidate.id }}" required>
+                <label>{{ candidate.name }} ({{ candidate.party }})</label>
+            </div>
+        {% endfor %}
+
+      
+        <div class="category">Finance</div>
+        {% for candidate in candidates if candidate.election_type == 'Finance' %}
+            <div class="candidate-container">
+                <input type="radio" name="finance_vote" value="{{ candidate.id }}" required>
+                <label>{{ candidate.name }} ({{ candidate.party }})</label>
+            </div>
+        {% endfor %}
+
+       
+        <div class="category">Accommodation</div>
+        {% for candidate in candidates if candidate.election_type == 'Accommodation' %}
+            <div class="candidate-container">
+                <input type="radio" name="accommodation_vote" value="{{ candidate.id }}" required>
+                <label>{{ candidate.name }} ({{ candidate.party }})</label>
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="submit-btn">Submit Vote</button>
+        
+    </form>
+</div>
+
+</body>
+</html>

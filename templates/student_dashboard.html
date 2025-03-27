@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            
+           
+            font-family: Arial, sans-serif;
+            background-color: rgb(173, 216, 230);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgb(173, 216, 230);
+            padding: 20px;
+            width: 70%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .party-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .party {
+            width: 30%;
+            text-align: center;
+            background-color:rgb(245, 247, 247);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            font-size: 20px;
+            font-colour:0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .party img {
+            width: 100%;
+            border-radius: 8px;
+            height: 150px;
+            object-fit: cover;
+        }
+        .party h3 {
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+        .party p {
+            color: #7f8c8d;
+        }
+        .party-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+        .party-btn:hover {
+            background: #2980b9;
+        }
+        .rules-section {
+            background: #fff7e6;
+            padding: 15px;
+            border-left: 5px solid #ffa500;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .rules-section h2 {
+            color: #d35400;
+        }
+        .rules-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .rules-section ul li {
+            padding: 8px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .rules-section ul li::before {
+            content: "✔";
+            color: green;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .checkbox-container input {
+            margin-right: 8px;
+        }
+        .proceed-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+        .proceed-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome, {{ user.name }}!</h1>
+        <p>You are logged in as a Student.</p>
+        
+        <div class="party-section">
+            <div class="party">
+                <img src="{{ url_for('static', filename='images/EFFSC.png') }}" alt="EFFSC Party">
+                <h3>EFFSC</h3>
+                <p>Vote for change! The EFFSC party stands for a better future and strives for student empowerment!</p>
+                
+            </div>
+            <div class="party">
+                <img src="{{ url_for('static', filename='images/SADESMO.png') }}" alt="IFP Party">
+                <h3>IFP</h3>
+                <p>Vote for leadership! IFP offers strong leadership and promises to improve student welfare.</p>
+                
+            </div>
+            <div class="party">
+                <img src="{{ url_for('static', filename='images/SASCO.png') }}" alt="SASCO Party">
+                <h3>SASCO</h3>
+                <p>Vote for unity! SASCO is dedicated to uniting students and working towards collective progress.</p>
+                
+            </div>
+        </div>
+
+        <div class="rules-section">
+            <h2>🗳 Election Rules & Guidelines</h2>
+            <p>Please read and understand the following rules before proceeding:</p>
+            <ul>
+                <li>Each student is allowed to vote only once per election.</li>
+                <li>Votes once cast cannot be changed or revoked.</li>
+                <li>Ensure you select the correct candidate before submitting your vote.</li>
+                <li>Any attempt at multiple voting will result in disqualification.</li>
+                <li>Your vote remains confidential and will not be shared with anyone.</li>
+                <li>The election results will be announced after the voting period ends.</li>
+            </ul>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="agree" onchange="toggleButton()">
+                <label for="agree">I have read and understood the rules</label>
+            </div>
+
+            <form action="{{ url_for('voting') }}" method="GET">
+                <button type="submit" id="proceed-btn" class="proceed-btn" disabled>Proceed to Vote</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleButton() {
+            document.getElementById('proceed-btn').disabled = !document.getElementById('agree').checked;
+        }
+    </script>
+
+</body>
+</html>
