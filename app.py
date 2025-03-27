@@ -216,6 +216,9 @@ def logout():
 
 @app.route('/voting', methods=['GET', 'POST'])
 def voting():
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
         presidential_vote = request.form.get('presidential_vote')
         finance_vote = request.form.get('finance_vote')
@@ -225,23 +228,40 @@ def voting():
             flash("You must vote for all categories!", "error")
             return redirect(url_for('voting'))
 
-        # Save vote to database
-        new_vote = Vote(
-            user_id=session.get('user_id', 1),  # Replace with actual session handling
-            presidential_vote=int(presidential_vote),
-            finance_vote=int(finance_vote),
-            accommodation_vote=int(accommodation_vote)
-        )
-        db.session.add(new_vote)
-        db.session.commit()
+        # Check if user has already voted
+        existing_vote = Vote.query.filter_by(user_id=session['user_id']).first()
+        if existing_vote:
+            flash("You have already voted!", "error")
+            return redirect(url_for('student_dashboard'))
 
-        flash("Your vote has been submitted successfully!", "success")
-        return redirect(url_for('thank_you'))
+        try:
+            # Record the vote
+            new_vote = Vote(
+                user_id=session['user_id'],
+                presidential_vote=int(presidential_vote),
+                finance_vote=int(finance_vote),
+                accommodation_vote=int(accommodation_vote)
+            )
+            db.session.add(new_vote)
 
-    # Fetch candidates
+            # Increment vote counts for candidates
+            for candidate_id in [presidential_vote, finance_vote, accommodation_vote]:
+                candidate = Candidate.query.get(int(candidate_id))
+                if candidate:
+                    candidate.votes += 1
+
+            db.session.commit()
+            flash("Your vote has been submitted successfully!", "success")
+            return redirect(url_for('thank_you'))
+        
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while processing your vote.", "error")
+            return redirect(url_for('voting'))
+
+    # Fetch candidates for GET request
     candidates = Candidate.query.all()
     return render_template('voting.html', candidates=candidates)
-   
 
 
 
@@ -259,3 +279,4 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
