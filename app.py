@@ -181,13 +181,8 @@ def delete_candidate(candidate_id):
 
 @app.route('/results')
 def results():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT name, election_type, party, votes FROM candidates ORDER BY votes DESC")
-    candidates = cursor.fetchall()
-
-    conn.close()
+    # Use SQLAlchemy to query the Candidate model
+    candidates = Candidate.query.order_by(Candidate.votes.desc()).all()
     return render_template('results.html', candidates=candidates)
 
 
