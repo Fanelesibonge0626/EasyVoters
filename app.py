@@ -1,7 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_migrate import Migrate
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import g
+
+
+
+
+DATABASE = "users.db"
+
+def get_db():
+    if "db" not in g:
+        g.db = sqlite3.connect(DATABASE)
+        g.db.row_factory = sqlite3.Row  # Allows fetching rows as dictionaries
+    return g.db
+
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -10,7 +25,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+
 
 users = {
     "admin@example.com": {"password": "admin123", "role": "admin"},
@@ -29,7 +44,14 @@ class Candidate(db.Model):
     name = db.Column(db.String(100), nullable=False)
     election_type = db.Column(db.String(50), nullable=False)
     party = db.Column(db.String(50), nullable=False)
-    votes = db.Column(db.Integer, default=0) 
+    votes = db.Column(db.Integer, default=0)
+    
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)  # Store voter ID
+    presidential_vote = db.Column(db.Integer, db.ForeignKey('candidate.id'))
+    finance_vote = db.Column(db.Integer, db.ForeignKey('candidate.id'))
+    accommodation_vote = db.Column(db.Integer, db.ForeignKey('candidate.id'))
 
 
 @app.route('/')
@@ -62,9 +84,9 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id  
+            session['user_id'] = user.id  # Store user ID in session
             session['role'] = user.role
-            session['email'] = user.email 
+            session['email'] = user.email  # Store email in session for profile display
 
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
@@ -115,7 +137,7 @@ def add_candidate():
         db.session.add(new_candidate)
         db.session.commit()
 
-        return redirect(url_for('add_candidate'))  
+        return redirect(url_for('add_candidate'))  # Refresh to show success message
 
     return render_template('add_candidates.html')
 
@@ -127,18 +149,7 @@ def candidate_list():
     candidates = Candidate.query.all()
     return render_template('candidate_list.html', candidates=candidates)
 
-@app.route('/page1')
-def page1():
-    candidates = Candidate.query.all()
 
-    
-    candidates_by_type = {}
-    for c in candidates:
-        if c.election_type not in candidates_by_type:
-            candidates_by_type[c.election_type] = []
-        candidates_by_type[c.election_type].append(c)
-
-    return render_template('page1.html', candidates_by_type=candidates_by_type)
 
 @app.route('/submit_vote', methods=['POST'])
 def submit_vote():
@@ -153,40 +164,32 @@ def submit_vote():
                 'party': candidate.party
             }
 
-   
+    # Store the selected candidates in session
     session['selected_candidates'] = selected_candidates
 
     return redirect(url_for('thank_you'))
 
 
-@app.route('/page2', methods=['GET', 'POST'])
-def page2():
-    if request.method == 'POST':
-        selected_party = request.form.get('party') 
-        if not selected_party:
-            return render_template('page2.html', error="Please select a party.")
-        
-       
-        return redirect(url_for('page3', party=selected_party))
-    
-    return render_template('page2.html')
+@app.route('/delete_candidate/<int:candidate_id>', methods=['POST'])
+def delete_candidate(candidate_id):
+    candidate = Candidate.query.get(candidate_id)
+    if candidate:
+        db.session.delete(candidate)
+        db.session.commit()
+    return redirect(url_for('candidate_list'))
 
-@app.route('/page3', methods=['GET', 'POST'])
-def page3():
-    party = session.get('party', 'None') 
-
-    if request.method == 'POST':
-        return redirect(url_for('thank_you'))
-
-    return render_template('page3.html', vote_data={'party': party, 'issues': 'None'})
 
 @app.route('/results')
 def results():
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('login'))
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
 
-    candidates = Candidate.query.order_by(Candidate.votes.desc()).all() 
+    cursor.execute("SELECT name, election_type, party, votes FROM candidates ORDER BY votes DESC")
+    candidates = cursor.fetchall()
+
+    conn.close()
     return render_template('results.html', candidates=candidates)
+
 
 
 
@@ -202,26 +205,36 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route('/vote', methods=['GET', 'POST'])
-def vote():
-    if 'user_id' not in session or session['role'] != 'student':
-        return redirect(url_for('login'))
-    
-    candidates = Candidate.query.all()
-
+@app.route('/voting', methods=['GET', 'POST'])
+def voting():
     if request.method == 'POST':
-        selected_candidate_id = request.form.get('candidate')
+        presidential_vote = request.form.get('presidential_vote')
+        finance_vote = request.form.get('finance_vote')
+        accommodation_vote = request.form.get('accommodation_vote')
 
-        if selected_candidate_id:
-            candidate = Candidate.query.get(selected_candidate_id)
-            if candidate:
-                candidate.votes += 1 
-                db.session.commit()
-                return redirect(url_for('thank_you'))  
+        if not presidential_vote or not finance_vote or not accommodation_vote:
+            flash("You must vote for all categories!", "error")
+            return redirect(url_for('voting'))
 
-        return "Please select a candidate."
+        # Save vote to database
+        new_vote = Vote(
+            user_id=session.get('user_id', 1),  # Replace with actual session handling
+            presidential_vote=int(presidential_vote),
+            finance_vote=int(finance_vote),
+            accommodation_vote=int(accommodation_vote)
+        )
+        db.session.add(new_vote)
+        db.session.commit()
 
-    return render_template('vote.html', candidates=candidates)
+        flash("Your vote has been submitted successfully!", "success")
+        return redirect(url_for('dashboard'))
+
+    # Fetch candidates
+    candidates = Candidate.query.all()
+    return render_template('voting.html', candidates=candidates)
+   
+
+
 
 @app.route('/election_type')
 def election_type():
