@@ -195,7 +195,21 @@ def results():
 
 @app.route('/thank_you')
 def thank_you():
-    selected_candidates = session.get('selected_candidates', {})
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Get the user's last vote
+    vote = Vote.query.filter_by(user_id=session['user_id']).order_by(Vote.id.desc()).first()
+    
+    if not vote:
+        return redirect(url_for('student_dashboard'))
+    
+    selected_candidates = {
+        'Presidential': Candidate.query.get(vote.presidential_vote),
+        'Finance': Candidate.query.get(vote.finance_vote),
+        'Accommodation': Candidate.query.get(vote.accommodation_vote)
+    }
+    
     return render_template('thank_you.html', selected_candidates=selected_candidates)
 
 
