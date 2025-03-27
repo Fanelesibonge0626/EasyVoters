@@ -227,7 +227,7 @@ def voting():
         db.session.commit()
 
         flash("Your vote has been submitted successfully!", "success")
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('thank_you'))
 
     # Fetch candidates
     candidates = Candidate.query.all()
