@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask import g
+import re
 
 
 
@@ -66,6 +67,10 @@ def register():
         password = generate_password_hash(request.form['password'])
         role = request.form['role']
         
+        # Validate email format
+        if not re.match(r'^\d{8}@dut4life\.ac\.za$', email):
+            return "Invalid email format. Please use your DUT student email (8 digits@dut4life.ac.za)"
+        
         if User.query.filter_by(email=email).first():
             return "Email already registered!"
         
@@ -81,12 +86,22 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        role = request.form.get('role', 'student')  # Default to student if not provided
+
+        # Validate email format
+        if not re.match(r'^\d{8}@dut4life\.ac\.za$', email):
+            return "Invalid email format. Please use your DUT student email (8 digits@dut4life.ac.za)"
 
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id  # Store user ID in session
+            # Additional check for role consistency (optional)
+            if user.role != role:
+                return "Invalid role for this account"
+                
+            session['user_id'] = user.id
             session['role'] = user.role
-            session['email'] = user.email  # Store email in session for profile display
+            session['email'] = user.email
+            session['name'] = user.name  # Store name in session for profile display
 
             if user.role == 'admin':
                 return redirect(url_for('admin_dashboard'))
@@ -96,6 +111,7 @@ def login():
         return "Invalid email or password. Please try again!"
 
     return render_template('login.html')
+
 
 
 
